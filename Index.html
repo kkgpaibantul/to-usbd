@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Ujian Sekolah Berstandar Daerah PAI Bantul</title>
+    <style>
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; height: 100vh; background: #f0f2f5; }
+        header { background: #27ae60; color: white; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        nav { background: white; padding: 10px; display: flex; justify-content: center; gap: 15px; border-bottom: 1px solid #ddd; }
+        nav button { padding: 10px 25px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; background: #ecf0f1; color: #7f8c8d; transition: 0.3s; }
+        nav button.active { background: #27ae60; color: white; }
+        .iframe-container { flex-grow: 1; position: relative; width: 100%; }
+        iframe { width: 100%; height: 100%; border: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div style="font-weight: bold; font-size: 1.2em; text-transform: uppercase;">Ujian Sekolah Berstandar Daerah</div>
+        <div style="font-size: 0.9em;">Kabupaten Bantul - Tahun 2026</div>
+    </header>
+
+    <nav>
+        <button id="b1" class="active" onclick="go('lapor')">Lapor Nilai</button>
+        <button id="b2" onclick="go('rekap')">Rekapitulasi Rata-Rata</button>
+    </nav>
+
+    <div class="iframe-container">
+        <iframe id="frame" src="https://script.google.com/a/macros/sd1godegan.sch.id/s/AKfycbzZSvB_DSN2A-zs2Hwch1gj7ugkX2SILPHZz76IJB0xqQjcKTWag23JM9ynrUJ14R8ptQ/exec"></iframe>
+    </div>
+
+    <script>
+        const urlAsli = "https://script.google.com/a/macros/sd1godegan.sch.id/s/AKfycbzZSvB_DSN2A-zs2Hwch1gj7ugkX2SILPHZz76IJB0xqQjcKTWag23JM9ynrUJ14R8ptQ/exec";
+
+        function go(menu) {
+            const f = document.getElementById('frame');
+            const b1 = document.getElementById('b1');
+            const b2 = document.getElementById('b2');
+
+            if (menu === 'lapor') {
+                f.src = urlAsli;
+                b1.classList.add('active');
+                b2.classList.remove('active');
+            } else {
+                // Menambahkan parameter untuk menampilkan halaman Rata.html
+                f.src = urlAsli + "?tampilan=rata";
+                b2.classList.add('active');
+                b1.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>
