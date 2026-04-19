@@ -3,52 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Ujian Sekolah Berstandar Daerah PAI Bantul</title>
+    <title>Portal Resmi Ujian Sekolah Berstandar Daerah PAI Bantul</title>
     <style>
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; height: 100vh; background: #f0f2f5; }
-        header { background: #27ae60; color: white; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        nav { background: white; padding: 10px; display: flex; justify-content: center; gap: 15px; border-bottom: 1px solid #ddd; }
-        nav button { padding: 10px 25px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; background: #ecf0f1; color: #7f8c8d; transition: 0.3s; }
-        nav button.active { background: #27ae60; color: white; }
-        .iframe-container { flex-grow: 1; position: relative; width: 100%; }
-        iframe { width: 100%; height: 100%; border: none; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; flex-direction: column; height: 100vh; }
+        header { background: #27ae60; color: white; padding: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        .main-menu { display: flex; justify-content: center; align-items: center; gap: 30px; flex-grow: 1; padding: 20px; }
+        .menu-card { 
+            background: white; width: 300px; height: 350px; border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; 
+        }
+        .menu-card:hover { transform: translateY(-10px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 2px solid #27ae60; }
+        .icon { font-size: 60px; margin-bottom: 20px; }
+        .menu-card h3 { color: #2c3e50; margin: 0; font-size: 20px; text-align: center; padding: 0 20px; }
+        
+        #iframe-wrapper { display: none; flex-grow: 1; flex-direction: column; }
+        .nav-bar { background: white; padding: 10px 20px; border-bottom: 1px solid #ddd; display: flex; align-items: center; }
+        .btn-back { background: #ecf0f1; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; color: #2c3e50; }
+        iframe { border: none; flex-grow: 1; width: 100%; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div style="font-weight: bold; font-size: 1.2em; text-transform: uppercase;">Ujian Sekolah Berstandar Daerah</div>
-        <div style="font-size: 0.9em;">Kabupaten Bantul - Tahun 2026</div>
-    </header>
+<header>
+    <div style="font-weight: bold; font-size: 1.5em; letter-spacing: 1px;">UJIAN SEKOLAH BERSTANDAR DAERAH</div>
+    <div style="font-size: 0.9em; opacity: 0.9;">Pendidikan Agama Islam - Kabupaten Bantul 2026</div>
+</header>
 
-    <nav>
-        <button id="b1" class="active" onclick="go('lapor')">Lapor Nilai</button>
-        <button id="b2" onclick="go('rekap')">Rekapitulasi Rata-Rata</button>
-    </nav>
-
-    <div class="iframe-container">
-        <iframe id="frame" src="https://script.google.com/a/macros/sd1godegan.sch.id/s/AKfycbzZSvB_DSN2A-zs2Hwch1gj7ugkX2SILPHZz76IJB0xqQjcKTWag23JM9ynrUJ14R8ptQ/exec"></iframe>
+<div class="main-menu" id="home">
+    <div class="menu-card" onclick="openFrame('lapor')">
+        <div class="icon">📝</div>
+        <h3>Lapor Nilai Sekolah</h3>
+        <p style="color:#7f8c8d; text-align:center;">Input nilai siswa secara kolektif</p>
     </div>
+    <div class="menu-card" onclick="openFrame('rekap')">
+        <div class="icon">🏆</div>
+        <h3>Peringkat & Rekapitulasi</h3>
+        <p style="color:#7f8c8d; text-align:center;">Lihat hasil rata-rata sekolah</p>
+    </div>
+</div>
 
-    <script>
-        const urlAsli = "https://script.google.com/a/macros/sd1godegan.sch.id/s/AKfycbzZSvB_DSN2A-zs2Hwch1gj7ugkX2SILPHZz76IJB0xqQjcKTWag23JM9ynrUJ14R8ptQ/exec";
+<div id="iframe-wrapper">
+    <div class="nav-bar">
+        <button class="btn-back" onclick="closeFrame()">⬅ Kembali ke Menu Utama</button>
+    </div>
+    <iframe id="main-frame" src=""></iframe>
+</div>
 
-        function go(menu) {
-            const f = document.getElementById('frame');
-            const b1 = document.getElementById('b1');
-            const b2 = document.getElementById('b2');
+<script>
+    const url = "URL_WEB_APP_ANDA"; // GANTI DENGAN URL GAS ANDA
 
-            if (menu === 'lapor') {
-                f.src = urlAsli;
-                b1.classList.add('active');
-                b2.classList.remove('active');
-            } else {
-                // Menambahkan parameter untuk menampilkan halaman Rata.html
-                f.src = urlAsli + "?tampilan=rata";
-                b2.classList.add('active');
-                b1.classList.remove('active');
-            }
-        }
-    </script>
+    function openFrame(m) {
+        document.getElementById('home').style.display = 'none';
+        document.getElementById('iframe-wrapper').style.display = 'flex';
+        const f = document.getElementById('main-frame');
+        if (m === 'lapor') f.src = url; else f.src = url + "?tampilan=rata";
+    }
+
+    function closeFrame() {
+        document.getElementById('home').style.display = 'flex';
+        document.getElementById('iframe-wrapper').style.display = 'none';
+        document.getElementById('main-frame').src = "";
+    }
+</script>
+
 </body>
 </html>
