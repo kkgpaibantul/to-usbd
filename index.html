@@ -9,12 +9,10 @@
         
         body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
         
-        /* Header dengan ID untuk kontrol JS */
         #main-header { background: var(--primary); color: white; padding: 25px 20px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         #main-header h1 { margin: 0; font-size: 1.6em; letter-spacing: 1px; text-transform: uppercase; }
         #main-header p { margin: 5px 0 0; font-size: 0.95em; opacity: 0.9; font-weight: 500; }
         
-        /* Menu Utama */
         .main-menu { 
             display: flex; justify-content: center; align-items: center; gap: 40px; 
             flex-grow: 1; padding: 40px 20px; flex-wrap: wrap; 
@@ -34,8 +32,7 @@
         .menu-card h3 { color: var(--dark); margin: 0; font-size: 22px; text-align: center; padding: 0 25px; line-height: 1.3; }
         .menu-card p { color: #7f8c8d; text-align: center; padding: 15px 30px 0; margin: 0; font-size: 15px; }
         
-        /* Wrapper Iframe */
-        #iframe-wrapper { display: none; flex-grow: 1; flex-direction: column; width: 100%; }
+        #iframe-wrapper { display: none; flex-grow: 1; flex-direction: column; width: 100%; position: relative; }
         
         .nav-bar { background: white; padding: 12px 25px; border-bottom: 1px solid #ddd; display: flex; align-items: center; position: sticky; top: 0; z-index: 100; }
         
@@ -46,6 +43,19 @@
         }
         .btn-back:hover { background: #eee; color: var(--primary); border-color: var(--primary); }
         
+        /* Loading Spinner */
+        #loader {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 50;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 15px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
         iframe { border: none; width: 100%; flex-grow: 1; min-height: 100vh; transition: height 0.3s ease; }
 
         footer { background: #fff; text-align: center; padding: 20px; font-size: 14px; color: #95a5a6; border-top: 1px solid #eee; font-weight: bold; }
@@ -80,10 +90,16 @@
 <div id="iframe-wrapper">
     <div class="nav-bar">
         <button class="btn-back" onclick="closeFrame()">
-            <span style="font-size: 1.2em;">⬅</span> Kembali ke Menu Utama
+            <span>⬅</span> Kembali ke Menu Utama
         </button>
     </div>
-    <iframe id="main-frame" src="" scrolling="no"></iframe>
+    
+    <div id="loader">
+        <div class="spinner"></div>
+        <p style="color: #7f8c8d; font-weight: bold;">Menyiapkan halaman, mohon tunggu...</p>
+    </div>
+
+    <iframe id="main-frame" src="" scrolling="no" onload="hideLoader()"></iframe>
 </div>
 
 <footer>
@@ -91,49 +107,44 @@
 </footer>
 
 <script>
-    // URL Web App GAS Anda
     const urlGas = "https://script.google.com/a/macros/sd1godegan.sch.id/s/AKfycbzZSvB_DSN2A-zs2Hwch1gj7ugkX2SILPHZz76IJB0xqQjcKTWag23JM9ynrUJ14R8ptQ/exec";
 
     function openFrame(mode) {
-        // 1. Sembunyikan Header dan Menu Utama
         document.getElementById('main-header').style.display = 'none';
         document.getElementById('home').style.display = 'none';
-        
-        // 2. Tampilkan Wrapper Iframe
         document.getElementById('iframe-wrapper').style.display = 'flex';
         
-        const frame = document.getElementById('main-frame');
+        // Tampilkan loader setiap kali membuka menu baru
+        document.getElementById('loader').style.display = 'flex';
         
-        // 3. Set URL berdasarkan mode
+        const frame = document.getElementById('main-frame');
         if (mode === 'lapor') {
             frame.src = urlGas;
         } else {
             frame.src = urlGas + "?tampilan=rata";
         }
         
-        // 4. Pastikan posisi scroll di paling atas
         window.scrollTo(0, 0);
     }
 
+    function hideLoader() {
+        // Sembunyikan loader saat iframe selesai dimuat
+        document.getElementById('loader').style.display = 'none';
+    }
+
     function closeFrame() {
-        // 1. Tampilkan kembali Header dan Menu Utama
         document.getElementById('main-header').style.display = 'block';
         document.getElementById('home').style.display = 'flex';
-        
-        // 2. Sembunyikan Wrapper Iframe
         document.getElementById('iframe-wrapper').style.display = 'none';
         
         const frame = document.getElementById('main-frame');
-        frame.src = ""; // Reset src untuk keamanan dan data
-        frame.style.height = "100vh"; 
+        frame.src = ""; 
     }
 
-    // --- LOGIKA AUTOFIT (Penerima Pesan dari GAS) ---
     window.addEventListener('message', function(e) {
         if (e.data.height) {
             const frame = document.getElementById('main-frame');
             if (frame) {
-                // Menyesuaikan tinggi iframe agar pas dengan konten di dalamnya
                 frame.style.height = e.data.height + 'px';
             }
         }
