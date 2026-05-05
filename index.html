@@ -6,6 +6,9 @@
     <title>Portal Resmi Tryout USBD PAI Bantul</title>
     
     <link rel="preconnect" href="https://script.google.com">
+    <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
+    <link rel="dns-prefetch" href="https://script.googleusercontent.com">
+    
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
 
     <style>
@@ -25,9 +28,15 @@
             display: flex; 
             flex-direction: column; 
             min-height: 100vh; 
-            overflow-x: hidden; 
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased; /* Optimasi render font */
+            text-rendering: optimizeLegibility;
         }
         
+        /* Animasi Transisi View (Perceived Performance) */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
         #main-header { 
             background: var(--primary); 
             color: white; 
@@ -61,8 +70,8 @@
             cursor: pointer; 
             transition: var(--transition); 
             border: 2px solid transparent; 
-            text-decoration: none;
             user-select: none;
+            will-change: transform, box-shadow; /* GPU Acceleration */
         }
         
         .menu-card:hover { 
@@ -113,10 +122,12 @@
             width: 45px; height: 45px; border: 4px solid #f3f3f3;
             border-top: 4px solid var(--primary); border-radius: 50%;
             animation: spin 0.8s linear infinite; margin-bottom: 15px;
+            will-change: transform; /* Hardware acceleration untuk animasi mulus */
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        iframe { border: none; width: 100%; flex-grow: 1; min-height: 90vh; background: white; }
+        /* Tambahan loading eager agar diprioritaskan browser */
+        iframe { border: none; width: 100%; flex-grow: 1; min-height: 90vh; background: transparent; }
 
         footer { background: #fff; text-align: center; padding: 20px; font-size: 13px; color: #7f8c8d; border-top: 1px solid #eee; }
 
@@ -128,12 +139,12 @@
 </head>
 <body>
 
-<header id="main-header">
+<header id="main-header" class="fade-in">
     <h1>Tryout Ujian Sekolah Berstandar Daerah</h1>
     <p>Pendidikan Agama Islam dan Budi Pekerti - Tingkat Kabupaten Bantul 2026</p>
 </header>
 
-<main class="main-menu" id="home-view">
+<main class="main-menu fade-in" id="home-view">
     <div class="menu-card" onclick="handleNavigation('lapor')">
         <div class="icon">📝</div>
         <h3>Lapor Nilai Sekolah</h3>
@@ -159,7 +170,7 @@
         <p style="color: #555; font-weight: 600;">Sedang menyiapkan data...</p>
     </div>
 
-    <iframe id="app-frame" src="" scrolling="no"></iframe>
+    <iframe id="app-frame" src="" scrolling="no" loading="eager" title="Aplikasi PAI Bantul"></iframe>
 </section>
 
 <footer>
@@ -170,7 +181,7 @@
     // Konfigurasi
     const GAS_ENDPOINT = "https://script.google.com/a/macros/sd1godegan.sch.id/s/AKfycbzZSvB_DSN2A-zs2Hwch1gj7ugkX2SILPHZz76IJB0xqQjcKTWag23JM9ynrUJ14R8ptQ/exec";
     
-    // Cache elemen untuk performa
+    // Cache elemen untuk performa (Minimalisir DOM lookup)
     const elements = {
         header: document.getElementById('main-header'),
         home: document.getElementById('home-view'),
@@ -183,16 +194,25 @@
      * Navigasi utama untuk membuka menu
      */
     function handleNavigation(mode) {
+        // Menyembunyikan menu utama
         elements.header.style.display = 'none';
         elements.home.style.display = 'none';
+        
+        // Memunculkan wrapper & loader dengan animasi
         elements.wrapper.style.display = 'flex';
+        elements.wrapper.classList.add('fade-in');
         elements.loader.style.display = 'flex';
         
         // Pilih URL berdasarkan mode
         const targetUrl = (mode === 'lapor') ? GAS_ENDPOINT : `${GAS_ENDPOINT}?tampilan=rata`;
         
-        // Memuat URL ke iframe
-        elements.frame.src = targetUrl;
+        // Jika src belum sama, ganti src. (Mencegah reload jika memencet menu yang sama)
+        if (elements.frame.src !== targetUrl) {
+            elements.frame.src = targetUrl;
+        } else {
+            elements.loader.style.display = 'none'; // Langsung hide loader jika sudah pernah diload
+        }
+        
         window.scrollTo(0, 0);
     }
 
@@ -200,17 +220,25 @@
      * Kembali ke menu utama
      */
     function resetNavigation() {
+        elements.wrapper.style.display = 'none';
+        elements.wrapper.classList.remove('fade-in');
+        
         elements.header.style.display = 'block';
         elements.home.style.display = 'flex';
-        elements.wrapper.style.display = 'none';
-        elements.frame.src = ""; // Membersihkan memori iframe
+        elements.home.classList.add('fade-in');
+        
+        // Kosongkan memori iframe agar aplikasi ringan di latar
+        elements.frame.src = "about:blank"; 
     }
 
     /**
      * Listener saat iframe selesai dimuat (Sembunyikan Loader)
      */
     elements.frame.addEventListener('load', () => {
-        elements.loader.style.display = 'none';
+        // Pastikan bukan saat mereset ke about:blank
+        if (elements.frame.src !== "about:blank" && elements.frame.src !== "") {
+            elements.loader.style.display = 'none';
+        }
     });
 
     /**
@@ -220,6 +248,7 @@
         // Validasi sederhana untuk memastikan data pesan sesuai
         if (event.data && typeof event.data === 'object' && event.data.height) {
             const newHeight = parseInt(event.data.height);
+            // Optimasi: Hanya ubah jika beda tinggi untuk mencegah reflow tak perlu
             if (!isNaN(newHeight)) {
                 elements.frame.style.height = (newHeight + 20) + 'px';
             }
